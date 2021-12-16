@@ -1,4 +1,4 @@
-' WordToPDF.vbs - Word document to PDF conversion script for Alitum Designer OutputJobs
+' WordToPDF.vbs - Word document to PDF conversion script for Altium Designer OutputJobs
 ' Written and tested for Altium Designer 21.9.2 on Windows 10
 '
 ' USAGE:
