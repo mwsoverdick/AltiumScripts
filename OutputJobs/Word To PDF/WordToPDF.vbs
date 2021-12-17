@@ -88,7 +88,7 @@ Sub Generate(Parameters)
     Set paramsDict = ADParamParse(parameters)
 
     ' Compile output file name
-    if paramsDict.Item("TargetFileName") <> "" Then
+    if Len(paramsDict.Item("TargetFileName")) > 1 Then
         sFileName = paramsDict.Item("TargetFileName")
     Else
         sFileName = GetBasename(paramsDict.Item("file")) + ".pdf"
