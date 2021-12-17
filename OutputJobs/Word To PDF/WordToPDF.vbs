@@ -1,4 +1,4 @@
-' WordToPDF.vbs - Word document to PDF conversion script for Altium Designer OutputJobs
+' WordToPDF.vbs - Word document to PDF conversion script for Alitum Designer OutputJobs
 ' Written and tested for Altium Designer 21.9.2 on Windows 10
 '
 ' USAGE:
@@ -64,6 +64,8 @@ Function Configure(parameters)
 
     ' Only update parameter if a file was selected
     if Myfile <> "" Then
+        ' Delete project path to make file association relative to project on Disk
+        Myfile = Replace(Myfile,GetParentPath(GetProjectPath()),"")
         paramsDict.Item("file") = Myfile
     end if
 
@@ -82,6 +84,7 @@ Sub Generate(Parameters)
     'MsgBox Parameters,65,"Generate"
     Dim sFileName
     Dim sDestFile
+    Dim sSourceFile
     Set paramsDict = ADParamParse(parameters)
 
     ' Compile output file name
@@ -90,9 +93,18 @@ Sub Generate(Parameters)
     Else
         sFileName = GetBasename(paramsDict.Item("file")) + ".pdf"
     End if
+
+    ' Compile destination path from target folder
     sDestFile = paramsDict.Item("TargetFolder") + sFileName
 
-    DocToPdf  paramsDict.Item("file"), sDestFile
+    ' If the file starts with a '\' assume it is relative to project path
+    if Left(paramsDict.Item("file"),1) = "\" Then
+        sSourceFile = GetParentPath(GetProjectPath()) + paramsDict.Item("file")
+    Else
+        sSourceFile = paramsDict.Item("file")
+    End if
+
+    DocToPdf  sSourceFile, sDestFile
 End Sub
 
 ' Convert word doc to PDF
@@ -160,7 +172,7 @@ Function GetFileName(path)
     GetFileName = objFSO.GetFileName(objFile)
 End Function
 
-' Conver file name.extension to just name
+' Convert file name.extension to just name
 Function GetBasename(path)
     dim fso
     set fso = createobject("scripting.filesystemobject")
@@ -215,3 +227,14 @@ Function CanWriteFile(path)
     Set oFile = oFso.OpenTextFile(path, 8, True)
     If Err.Number = 0 Then oFile.Close
 end Function
+
+' Return path to Altium project file
+Function GetProjectPath()
+    Dim ProjectPath
+    ProjectPath = ""
+    Set Workspace = GetWorkspace
+    If Not (Workspace Is Nothing) Then
+       ProjectPath = Workspace.DM_FocusedProject.DM_ProjectFullPath
+    End If
+    GetProjectPath = ProjectPath
+End Function
